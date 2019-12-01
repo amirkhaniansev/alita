@@ -1,6 +1,6 @@
 # search-engine
 * Simple search engine with basic functionality. 
-* NOTE that this project is done for educational and scientific purposes and it may not meet industrial and production standards.
+* NOTE that this project is done for educational and scientific purposes, thus it may not meet industrial and production standards.
 
 The problem is offered and described by [Vahram Martirosyan, Ph.D](https://github.com/vmartirosyan).
 
