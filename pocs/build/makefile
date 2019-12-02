@@ -1,4 +1,4 @@
-all: http_s parser rabbit
+all: http_s parser rabbit dbconnect
 
 http_s: http https
 
@@ -18,3 +18,6 @@ publisher: ../rabbit/publisher.cpp
 
 subscriber: ../rabbit/subscriber.cpp
 		g++ ../rabbit/subscriber.cpp -o subscriber -lSimpleAmqpClient
+
+dbconnect: ../dbconnect/dbconnect.cpp
+		g++ ../dbconnect/dbconnect.cpp -o dbconnect -lmysqlcppconn
