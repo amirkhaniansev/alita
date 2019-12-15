@@ -1,4 +1,4 @@
-# search-engine
+# ALITA
 * Simple search engine with basic functionality. 
 * NOTE that this project is done for educational and scientific purposes, thus it may not meet industrial and production standards.
 
