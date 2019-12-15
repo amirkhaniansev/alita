@@ -27,8 +27,8 @@
 
 int main(int argc, char** argv)
 {
-    se::lqueue::set_size(200000);
-    se::lqueue::instance().dump();
+    alita::lqueue::set_size(4000);
+    alita::lqueue::instance().dump();
 
     try
     {
@@ -41,15 +41,15 @@ int main(int argc, char** argv)
             n = rand() % 3;
 
             std::cerr << "DUMPING BEFORE..." << std::endl;
-            se::lqueue::instance().dump();
+            alita::lqueue::instance().dump();
 
             for(int i = 0; i < n; i++) {
-                se::lqueue::instance().enqueue("https://www.github.com");
+                alita::lqueue::instance().enqueue("https://www.github.com");
                 std::cerr << "ENQUEUED LINK : " << "https//www.github.com" << std::endl;
             }
 
             std::cerr << "DUMPING AFTER..." << std::endl;
-            se::lqueue::instance().dump();
+            alita::lqueue::instance().dump();
         }
     }
     catch(const std::exception& e)
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
         std::cerr << "ERROR : " << e.what() << std::endl;
         try
         {
-            se::lqueue::instance().unsync();
+            alita::lqueue::instance().unsync();
         }
         catch(const std::exception& e)
         {
@@ -66,8 +66,8 @@ int main(int argc, char** argv)
         }       
     }
 
-    se::lqueue::instance().detach();
-    se::lqueue::instance().destroy();
+    alita::lqueue::instance().detach();
+    alita::lqueue::instance().destroy();
     
     return 0;
 }

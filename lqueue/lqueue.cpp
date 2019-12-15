@@ -27,41 +27,41 @@
 
 #include "../include/lqueue.hpp"
 
-key_t       se::lqueue::KEY = 99029;
-std::size_t se::lqueue::SIZE = 2000000;
-std::size_t se::lqueue::MIN_SIZE = 2000;
-std::size_t se::lqueue::MAX_SIZE = 20000000000;
+key_t       alita::lqueue::KEY = 99029;
+std::size_t alita::lqueue::SIZE = 2000000;
+std::size_t alita::lqueue::MIN_SIZE = 2000;
+std::size_t alita::lqueue::MAX_SIZE = 20000000000;
 
-void se::lqueue::set_size(std::size_t size)
+void alita::lqueue::set_size(std::size_t size)
 {
-    if(size < se::lqueue::MIN_SIZE || size > se::lqueue::MAX_SIZE)
+    if(size < alita::lqueue::MIN_SIZE || size > alita::lqueue::MAX_SIZE)
         throw std::runtime_error("Invalid Size...");
 
     lqueue::SIZE = size;
 }
 
-se::lqueue& se::lqueue::instance()
+alita::lqueue& alita::lqueue::instance()
 {
-    static se::lqueue lqueue(se::lqueue::SIZE);
+    static alita::lqueue lqueue(alita::lqueue::SIZE);
     return lqueue;
 }
 
-se::lqueue::lqueue() : se::lqueue::lqueue(se::lqueue::SIZE)
+alita::lqueue::lqueue() : alita::lqueue::lqueue(alita::lqueue::SIZE)
 {    
 }
 
-se::lqueue::lqueue(std::size_t size)
+alita::lqueue::lqueue(std::size_t size)
 {
-    if(size < se::lqueue::MIN_SIZE || size > se::lqueue::MAX_SIZE)
+    if(size < alita::lqueue::MIN_SIZE || size > alita::lqueue::MAX_SIZE)
         throw std::runtime_error("Invalid Size...");
 
     this->_queue_size = size;
-    this->_queue_count = size / sizeof(se::queue_item);
+    this->_queue_count = size / sizeof(alita::queue_item);
 
-    this-> _shm_id = shmget(se::lqueue::KEY, size + sizeof(se::header),  IPC_CREAT | IPC_EXCL | 0660);
+    this-> _shm_id = shmget(alita::lqueue::KEY, size + sizeof(alita::header),  IPC_CREAT | IPC_EXCL | 0660);
     if(this-> _shm_id < 0) {
         std::cerr << "INFO : SHM EXISTS" << std::endl;
-        this-> _shm_id = shmget(se::lqueue::KEY, size + sizeof(se::header), IPC_CREAT | 0660);
+        this-> _shm_id = shmget(alita::lqueue::KEY, size + sizeof(alita::header), IPC_CREAT | 0660);
         if(this-> _shm_id < 0)
             throw std::runtime_error("SHM GET ERROR : " + std::string(strerror(errno)));
     
@@ -84,50 +84,74 @@ se::lqueue::lqueue(std::size_t size)
     h._state = 'I';
     h._base_offset = sizeof(header);
 
-    this->validate(pthread_mutexattr_init(&h._lock_attr), "MUTEX ATTR INIT ERROR");
-    this->validate(pthread_mutexattr_setpshared(&h._lock_attr, PTHREAD_PROCESS_SHARED), "MUTEX SET SHARED ERROR");
-    this->validate(pthread_mutex_init(&h._lock, &h._lock_attr), "MUTEX INIT ERROR");
+    this->init_mutex(&h._sync_context._lock, &h._sync_context._lock_attr);
 
-    this->validate(pthread_condattr_init(&h._cv_attr), "CV ATTR INIT ERROR");
-    this->validate(pthread_condattr_setpshared(&h._cv_attr, PTHREAD_PROCESS_SHARED), "CV SET SHARED ERROR");
-    this->validate(pthread_cond_init(&h._cv, &h._cv_attr), "CV INIT ERROR");
-
+    this->init_cv(&h._sync_context._can_be_enqueued, &h._sync_context._can_be_enqueued_attr);
+    this->init_cv(&h._sync_context._can_be_dequeued, &h._sync_context._can_be_dequeued_attr);
+    
     memcpy(this->_shm_ptr, &h, sizeof(header));
 }
 
-void se::lqueue::validate(int err, std::string message)
+void alita::lqueue::init_mutex(pthread_mutex_t* mutex, pthread_mutexattr_t* mutex_attr)
+{
+    this->validate(pthread_mutexattr_init(mutex_attr), "MUTEX ATTR INIT ERROR");
+    this->validate(pthread_mutexattr_setpshared(mutex_attr, PTHREAD_PROCESS_SHARED), "MUTEX SET SHARED ERROR");
+    this->validate(pthread_mutex_init(mutex, mutex_attr), "MUTEX INIT ERROR");
+}
+
+void alita::lqueue::desroy_mutex(pthread_mutex_t* mutex, pthread_mutexattr_t* mutex_attr)
+{
+    this->validate(pthread_mutex_destroy(mutex), "MUTEX DESTROY ERROR");    
+    this->validate(pthread_mutexattr_destroy(mutex_attr), "MUTEX ATTR DESTROY ERROR");   
+}
+
+void alita::lqueue::init_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr)
+{
+    this->validate(pthread_condattr_init(cv_attr), "CV ATTR INIT ERROR");
+    this->validate(pthread_condattr_setpshared(cv_attr, PTHREAD_PROCESS_SHARED), "CV SET SHARED ERROR");
+    this->validate(pthread_cond_init(cv, cv_attr), "CV INIT ERROR");
+}
+
+void alita::lqueue::destroy_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr)
+{
+    this->validate(pthread_cond_destroy(cv), "CV DESTROY ERROR");
+    this->validate(pthread_condattr_destroy(cv_attr), "CV ATTR DESTROY ERROR");
+}
+
+void alita::lqueue::validate(int err, std::string message)
 {
     if(err != 0)
         throw std::runtime_error(message + " : " + std::string(strerror(err)));
 }
 
-void se::lqueue::unsync()
+void alita::lqueue::unsync()
 {
-    se::header* header = (se::header*)this->_shm_ptr;
+    alita::header* header = (alita::header*)this->_shm_ptr;
+    
+    this->desroy_mutex(&header->_sync_context._lock, &header->_sync_context._lock_attr);
 
-    this->validate(pthread_mutex_destroy(&header->_lock), "MUTEX DESTROY ERROR");    
-    this->validate(pthread_mutexattr_destroy(&header->_lock_attr), "MUTEX ATTR DESTROY ERROR");    
-
-    this->validate(pthread_cond_destroy(&header->_cv), "CV DESTROY ERROR");
-    this->validate(pthread_condattr_destroy(&header->_cv_attr), "CV ATTR DESTROY ERROR");
+    this->destroy_cv(&header->_sync_context._can_be_enqueued, &header->_sync_context._can_be_enqueued_attr);
+    this->destroy_cv(&header->_sync_context._can_be_dequeued, &header->_sync_context._can_be_dequeued_attr);
 }
 
-void se::lqueue::detach()
+void alita::lqueue::detach()
 {
     if(shmdt(this->_shm_ptr) != 0)
         throw std::runtime_error(strerror(errno));
 }
 
-void se::lqueue::destroy()
+void alita::lqueue::destroy()
 {
     if(shmctl(this->_shm_id, IPC_RMID, NULL) != 0)
         throw std::runtime_error(strerror(errno));
 }
 
-void se::lqueue::dump()
+void alita::lqueue::dump()
 {
-    se::header* header = (se::header*)this->_shm_ptr;
-    se::queue_item* items = (se::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
+    alita::header* header = (alita::header*)this->_shm_ptr;
+    alita::queue_item* items = (alita::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
+
+    this->validate(pthread_mutex_lock(&header->_sync_context._lock), "MUTEX LOCK ERROR");
 
     std::cerr << "STATE   : " << header->_state << std::endl
               << "SIZE    : " << header->_size << std::endl
@@ -139,50 +163,55 @@ void se::lqueue::dump()
 
     if(header->_front == -1) {
         std::cerr << "QUEUE IS EMPTY!!" << std::endl;
+        this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
         return;
     }
 
     std::cerr << "QUEUE CONTENT : " << std::endl;
     if(header->_rear >= header->_front) {
         for(int i = header->_front; i <= header->_rear; i++)
-            std::cerr << "LINK : " << items[i]._link._link << std::endl;
+            std::cerr << "LINK " << i << " : " << items[i]._link._link << std::endl;
+        
+        this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
 
         return;
     }
 
     for(int i = header->_front; i < this->_queue_count; i++)
-        std::cerr << "LINK : " << items[i]._link._link << std::endl;
+        std::cerr << "LINK " << i << " : "<< items[i]._link._link << std::endl;
 
     for(int i = 0; i < header->_rear; i++)
-        std::cerr << "LINK : " << items[i]._link._link << std::endl;
+        std::cerr << "LINK " << i << " : " << items[i]._link._link << std::endl;
+        
+    this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
 }
 
-void se::lqueue::enqueue(const std::string link)
+void alita::lqueue::enqueue(const std::string link)
 {
     this->enqueue(link.c_str());
 }
 
-void se::lqueue::enqueue(const char* link)
+void alita::lqueue::enqueue(const char* link)
 {
     if(link == NULL)
         throw std::invalid_argument("Link is NULL...");
     if(strlen(link) > 2000)
         throw std::invalid_argument("Link is too long...");
 
-    se::queue_item qi;
+    alita::queue_item qi;
     strcpy(qi._link._link, link);
 
     this->enqueue(&qi);
 }
 
-void se::lqueue::enqueue(const se::queue_item* queue_item)
+void alita::lqueue::enqueue(const alita::queue_item* queue_item)
 {
     if(queue_item == NULL)
         throw std::invalid_argument("Invalid queue item...");
 
-    se::header* header = (se::header*)this->_shm_ptr;
-    se::queue_item* items = (se::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
-    this->validate(pthread_mutex_lock(&header->_lock), "MUTEX LOCK ERROR");
+    alita::header* header = (alita::header*)this->_shm_ptr;
+    alita::queue_item* items = (alita::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
+    this->validate(pthread_mutex_lock(&header->_sync_context._lock), "MUTEX LOCK ERROR");
     
     bool condition = false;
     while(true) {
@@ -192,7 +221,7 @@ void se::lqueue::enqueue(const se::queue_item* queue_item)
         if(!condition)
             break;
 
-        pthread_cond_wait(&header->_cv, &header->_lock);
+        pthread_cond_wait(&header->_sync_context._can_be_enqueued, &header->_sync_context._lock);
     }
     
     if(header->_front == -1){
@@ -209,24 +238,24 @@ void se::lqueue::enqueue(const se::queue_item* queue_item)
     header->_count++;
     items[header->_rear] = *queue_item;
 
-    pthread_cond_signal(&header->_cv);
-    this->validate(pthread_mutex_unlock(&header->_lock), "MUTEX UNLOCK ERROR");
+    pthread_cond_signal(&header->_sync_context._can_be_dequeued);
+    this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
 }
 
-void se::lqueue::dequeue(se::queue_item* queue_item)
+void alita::lqueue::dequeue(alita::queue_item* queue_item)
 {
     if(queue_item == NULL)
         throw std::invalid_argument("Output param is NULL...");
 
-    se::header* header = (se::header*)this->_shm_ptr;
-    se::queue_item* items = (se::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
-    this->validate(pthread_mutex_lock(&header->_lock), "MUTEX LOCK ERROR");
+    alita::header* header = (alita::header*)this->_shm_ptr;
+    alita::queue_item* items = (alita::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
+    this->validate(pthread_mutex_lock(&header->_sync_context._lock), "MUTEX LOCK ERROR");
 
     while(header->_front == -1)
-        pthread_cond_wait(&header->_cv, &header->_lock);
+        pthread_cond_wait(&header->_sync_context._can_be_dequeued, &header->_sync_context._lock);
 
     header->_count--;
-    memcpy(queue_item, &items[header->_front], sizeof(se::queue_item));
+    memcpy(queue_item, &items[header->_front], sizeof(alita::queue_item));
 
     if(header->_front == header->_rear) {
         header->_front = -1;
@@ -239,6 +268,6 @@ void se::lqueue::dequeue(se::queue_item* queue_item)
         header->_front++;
     }
 
-    pthread_cond_signal(&header->_cv);
-    this->validate(pthread_mutex_unlock(&header->_lock), "MUTEX UNLOCK ERROR");
+    pthread_cond_signal(&header->_sync_context._can_be_enqueued);
+    this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
 }

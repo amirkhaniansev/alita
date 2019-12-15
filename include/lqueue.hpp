@@ -27,7 +27,7 @@
 #include <pthread.h>
 #include <sys/ipc.h>
 
-namespace se {
+namespace alita {
     struct link {
         char _link[2000];
     };
@@ -36,12 +36,18 @@ namespace se {
         link _link;
     };
 
-    struct header {
-        char _state;
+    struct sync_context {
         pthread_mutex_t _lock;
         pthread_mutexattr_t _lock_attr;
-        pthread_cond_t _cv;
-        pthread_condattr_t _cv_attr;
+        pthread_cond_t _can_be_enqueued;
+        pthread_condattr_t _can_be_enqueued_attr;
+        pthread_cond_t _can_be_dequeued;
+        pthread_condattr_t _can_be_dequeued_attr;
+    };
+
+    struct header {
+        sync_context _sync_context;
+        char _state;
         int _front;
         int _rear;
         std::size_t _count;
@@ -67,6 +73,10 @@ namespace se {
             lqueue();
             lqueue(std::size_t queue_size);
             void validate(int err, std::string message);
+            void init_mutex(pthread_mutex_t* mutex, pthread_mutexattr_t* mutex_attr);
+            void desroy_mutex(pthread_mutex_t* mutex, pthread_mutexattr_t* mutex_attr);
+            void init_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr);
+            void destroy_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr);
         private:
             static key_t KEY;
             static std::size_t SIZE;
