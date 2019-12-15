@@ -59,3 +59,5 @@ The ecosystem of this seach engine consists of a few components:
   *  [MySql](https://github.com/mysql/mysql-server)
   *  [MySql C++ Connector]( https://github.com/mysql/mysql-connector-cpp])
   *  [HTTP(S) C++ Client](https://github.com/yhirose/cpp-httplib)
+  *  [HTML Parser](https://github.com/lexborisov/myhtml)
+  *  [CURL](https://curl.haxx.se/libcurl/)
