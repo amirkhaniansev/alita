@@ -63,7 +63,7 @@ void alita::threadpool::enqueue_work(entry_point_t entry_point, input_t input, c
 void alita::threadpool::create_worker(bool is_main)
 {
     pthread_t pthread_id;
-    this->validate(pthread_create(&pthread_id, NULL, alita::threadpool::start_routine, (void*)is_main)); 
+    this->validate(pthread_create(&pthread_id, NULL, alita::threadpool::start_routine, (void*)is_main));
 
     this->validate(pthread_mutex_lock(&this->_workers_lock));
     this->_workers.insert(pthread_id);
@@ -101,9 +101,16 @@ void alita::threadpool::do_work(bool is_main)
 
 void alita::threadpool::state()
 {
-    std::cerr << "BUSY COUNT :" << this->busy_count 
-              << "WORKS COUNT : " << this->_works.size()
-              << "WORKERS COUNT : " << this->_workers.size();
+    this->validate(pthread_mutex_lock(&this->_works_lock));
+    this->validate(pthread_mutex_lock(&this->_workers_lock));
+
+    std::string state = "BUSY COUNT :" + std::to_string(this->busy_count) + '\n'
+              + "WORKS COUNT : "   + std::to_string(this->_works.size()) + '\n'
+              + "WORKERS COUNT : " + std::to_string(this->_workers.size()) + '\n';
+    std::cerr << state;
+    
+    this->validate(pthread_mutex_unlock(&this->_works_lock));
+    this->validate(pthread_mutex_unlock(&this->_workers_lock));
 }
 
 void* alita::threadpool::start_routine(void* input)
