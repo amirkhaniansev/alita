@@ -52,7 +52,7 @@ void alita::threadpool::enqueue_work(entry_point_t entry_point, input_t input, c
     this->validate(pthread_mutex_lock(&this->_works_lock));
     this->_works.push(context);
 
-    if(this->busy_count == 4)
+    if(this->_workers.size() <= 32UL)
         this->create_worker(false);
 
     pthread_cond_signal(&this->_can_be_dequeued);
@@ -108,7 +108,7 @@ void alita::threadpool::state()
               + "WORKS COUNT : "   + std::to_string(this->_works.size()) + '\n'
               + "WORKERS COUNT : " + std::to_string(this->_workers.size()) + '\n';
     std::cerr << state;
-    
+
     this->validate(pthread_mutex_unlock(&this->_works_lock));
     this->validate(pthread_mutex_unlock(&this->_workers_lock));
 }
