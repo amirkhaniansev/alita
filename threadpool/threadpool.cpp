@@ -99,6 +99,13 @@ void alita::threadpool::do_work(bool is_main)
     this->validate(pthread_mutex_unlock(&this->_workers_lock));
 }
 
+void alita::threadpool::state()
+{
+    std::cerr << "BUSY COUNT :" << this->busy_count 
+              << "WORKS COUNT : " << this->_works.size()
+              << "WORKERS COUNT : " << this->_workers.size();
+}
+
 void* alita::threadpool::start_routine(void* input)
 {
     alita::threadpool::instance().do_work((bool)input);
