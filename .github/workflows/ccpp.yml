@@ -11,3 +11,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: make
       run: make ./https/build/makefile -B
+      
+    - uses: actions/checkout@v1
+    - name: make
+      run: make ./lqueue/build/makefile -B
