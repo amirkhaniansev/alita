@@ -1,4 +1,4 @@
-all: lqueue_enqueue.test lqueue_dequeue.test https.test threadpool.test
+all: lqueue_enqueue.test lqueue_dequeue.test https.test threadpool.test parser.test
 
 https.test: ../../include/httpsc.hpp ../https/https_test.cpp
 		g++ ../https/https_test.cpp -o https.test -lhttpsc -lssl -lcrypto
@@ -11,3 +11,6 @@ lqueue_dequeue.test: ../../include/lqueue.hpp ../lqueue/lqueue_dequeue_test.cpp
 
 threadpool.test: ../../include/threadpool.hpp ../threadpool/ttest.cpp
 		g++ ../threadpool/ttest.cpp -o threadpool.test -lthreadpool
+
+parser.test: ../../include/parser.hpp ../parser/parser_test.cpp
+		g++ ../parser/parser_test.cpp -o parser.test -lparser
