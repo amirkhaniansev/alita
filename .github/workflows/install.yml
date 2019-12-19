@@ -1,0 +1,13 @@
+name: CI
+
+on: [push]
+
+jobs:
+  install:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Installing libcurl
+      run: sudo apt-get install libcurl4-gnutls-dev
