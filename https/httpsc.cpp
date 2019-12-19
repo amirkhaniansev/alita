@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * POC for HTTPS request.
+ * Implementation for HTTP(S) client.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -18,31 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include <stdexcept>
 #include <iostream>
 #include <string>
 
 #include <curl/curl.h>
 
-int main(int argc, char** argv)
+#include "../include/httpsc.hpp"
+
+size_t write_data(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    std::size_t real_size = size * nmemb;
+    std::string* buff = (std::string*)userp;
+    std::string content((char*)contents, real_size);
+    
+    buff->append(content);
+
+    return real_size;
+}
+
+std::string alita::httpsc::get(const std::string url)
 {
     CURL *curl;
     CURLcode res;
+    std::string buffer;
 
     curl = curl_easy_init();
-    if(curl) {
-        std::string escaped(curl_easy_escape(curl, "արփինետ.հայ", 30));
-        std::string url = "https://" + escaped;
+    if(!curl)
+        return std::string();
 
-        std::cout << "URL : " << url << std::endl;
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
 
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        res = curl_easy_perform(curl);
-
-        curl_easy_cleanup(curl);
-
-        std::cout << std::endl;
-    }
-    
-    return 0;
+    return buffer;
 }

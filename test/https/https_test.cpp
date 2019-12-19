@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * POC for HTTPS request.
+ * TEST for HTTP(S) client.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -21,28 +21,16 @@
 #include <iostream>
 #include <string>
 
-#include <curl/curl.h>
+#include "../../include/httpsc.hpp"
 
 int main(int argc, char** argv)
 {
-    CURL *curl;
-    CURLcode res;
+    if(argc != 2)
+        return 1;
 
-    curl = curl_easy_init();
-    if(curl) {
-        std::string escaped(curl_easy_escape(curl, "արփինետ.հայ", 30));
-        std::string url = "https://" + escaped;
-
-        std::cout << "URL : " << url << std::endl;
-
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        res = curl_easy_perform(curl);
-
-        curl_easy_cleanup(curl);
-
-        std::cout << std::endl;
-    }
-    
+    std::string url(argv[1]);
+    std::cerr << "Sending GET to " << url << std::endl
+              << "Reponse Body ... " << alita::httpsc::get(std::string(url)) << std::endl;
+              
     return 0;
 }

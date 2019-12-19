@@ -8,7 +8,7 @@ http: ../../include/httplib.hpp ../https/http.cpp
 		g++ ../https/http.cpp -o http_poc
 
 https: ../../include/httplib.hpp ../https/https.cpp
-		g++ ../https/https.cpp -o https_poc -lcrypto -lssl
+		g++ ../https/https.cpp -o https_poc -lcrypto -lssl -lcurl
 
 parser: ../parser/parser.cpp
 		g++ ../parser/parser.cpp -o parser

@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * POC for HTTPS request.
+ * Header file for HTTP(S) client.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -18,31 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include <iostream>
+#ifndef __HTTPS_CLIENT__
+#define __HTTPS_CLIENT__
+
 #include <string>
 
-#include <curl/curl.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT 
 
-int main(int argc, char** argv)
-{
-    CURL *curl;
-    CURLcode res;
+#include "../include/httplib.hpp"
 
-    curl = curl_easy_init();
-    if(curl) {
-        std::string escaped(curl_easy_escape(curl, "արփինետ.հայ", 30));
-        std::string url = "https://" + escaped;
+namespace alita {
+    class httpsc {
+        public:
+            static std::string get(const std::string url);
+    };
+};
 
-        std::cout << "URL : " << url << std::endl;
-
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        res = curl_easy_perform(curl);
-
-        curl_easy_cleanup(curl);
-
-        std::cout << std::endl;
-    }
-    
-    return 0;
-}
+#endif
