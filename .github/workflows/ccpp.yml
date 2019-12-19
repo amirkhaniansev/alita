@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build
 
 on: [push]
 
@@ -8,6 +8,31 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+
     - uses: actions/checkout@v1
-    - name: make
-      run: cd ./https/build && make -B && cd ../../
+    - name: HTTPS Library Build
+      run: cd ./https/build && sudo make -B && cd ../../
+    
+    - uses: actions/checkout@v1
+    - name: Link Queue Library Build
+      run: cd ./lqueue/build && sudo make -B && cd ../../
+    
+    - uses: actions/checkout@v1
+    - name: Message Queue Library Build
+      run: cd ./mqueue/build && sudo make -B && cd ../../ 
+    
+    - uses: actions/checkout@v1
+    - name: Parser Library Build
+      run: cd ./parser/build && sudo make -B && cd ../../ 
+    
+    - uses: actions/checkout@v1
+    - name: Thread Pool Library Build
+      run: cd ./threadpool/build && sudo make -B && cd ../../     
+    
+    - uses: actions/checkout@v1
+    - name: POCs Build
+      run: cd ./pocs/build && sudo make -B && cd ../../       
+    
+    - uses: actions/checkout@v1
+    - name: Test Build
+      run: cd ./test/build && sudo make -B && cd ../../     
