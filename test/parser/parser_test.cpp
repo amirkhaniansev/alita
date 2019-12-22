@@ -9,7 +9,7 @@ int main(int argc, char** argv)
     std::ifstream stream("../parser/content.html");
     std::string html((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
-    alita::html_parser parser("github.com", html);
+    alita::html_parser parser("spyur.am", html);
     parser.parse();
 
     auto set = parser.get_links();

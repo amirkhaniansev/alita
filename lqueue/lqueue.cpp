@@ -224,21 +224,24 @@ void alita::lqueue::enqueue(const alita::queue_item* queue_item)
         pthread_cond_wait(&header->_sync_context._can_be_enqueued, &header->_sync_context._lock);
     }
     
-    if(header->_front == -1){
-        header->_front = 0;
-        header->_rear = 0;
-    }
-    else if (header->_rear == this->_queue_count - 1 && header->_front != 0) {
-        header->_rear = 0;
-    }   
-    else {
-        header->_rear++;
-    }
+    if(this->check(queue_item->_link._link)) {
+        if(header->_front == -1){
+            header->_front = 0;
+            header->_rear = 0;
+        }
+        else if (header->_rear == this->_queue_count - 1 && header->_front != 0) {
+            header->_rear = 0;
+        }   
+        else {
+            header->_rear++;
+        }
 
-    header->_count++;
-    items[header->_rear] = *queue_item;
-
-    pthread_cond_signal(&header->_sync_context._can_be_dequeued);
+        header->_count++;
+        items[header->_rear] = *queue_item;
+    
+        pthread_cond_signal(&header->_sync_context._can_be_dequeued);
+    }
+    
     this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
 }
 
@@ -270,4 +273,30 @@ void alita::lqueue::dequeue(alita::queue_item* queue_item)
 
     pthread_cond_signal(&header->_sync_context._can_be_enqueued);
     this->validate(pthread_mutex_unlock(&header->_sync_context._lock), "MUTEX UNLOCK ERROR");
+}
+
+bool alita::lqueue::check(const char* link)
+{
+    // TODO : Needs Heavy Optimization
+    alita::header* header = (alita::header*)this->_shm_ptr;
+    alita::queue_item* items = (alita::queue_item*)((char*)this->_shm_ptr + header->_base_offset);
+
+    if(header->_front == -1)
+        return true;
+
+    if(header->_front == header->_rear) {
+        for(int i = header->_front; i <= header->_rear; i++)
+            if(strcmp(items[i]._link._link, link) == 0)
+                return false;
+    }
+
+    for(int i = header->_front; i < this->_queue_count; i++)
+        if(strcmp(items[i]._link._link, link) == 0)
+                return false;
+
+    for(int i = 0; i < header->_rear; i++)
+        if(strcmp(items[i]._link._link, link) == 0)
+                return false;    
+
+    return true;
 }

@@ -77,6 +77,7 @@ namespace alita {
             void desroy_mutex(pthread_mutex_t* mutex, pthread_mutexattr_t* mutex_attr);
             void init_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr);
             void destroy_cv(pthread_cond_t* cv, pthread_condattr_t* cv_attr);
+            bool check(const char* link);
         private:
             static key_t KEY;
             static std::size_t SIZE;
