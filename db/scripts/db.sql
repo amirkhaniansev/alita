@@ -1,1 +1,1 @@
-CREATE DATABASE SearchEngine;
+CREATE DATABASE Alita;

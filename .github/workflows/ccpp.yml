@@ -31,7 +31,11 @@ jobs:
     
     - uses: actions/checkout@v1
     - name: Crawler Build
-      run: cd ./crawler/build && sudo make -B && cd ../../     
+      run: cd ./crawler/build && sudo make -B && cd ../../
+      
+    - uses: actions/checkout@v1
+    - name: DB API Build
+      run: cd ./db/build && sudo make -B && cd ../../     
     
     - uses: actions/checkout@v1
     - name: POCs Build

@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <string>
+#include <locale>
+#include <codecvt>
 
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -32,39 +34,35 @@ int main(int argc, char** argv)
 {
     try
     {
+        int id;
+
         sql::Driver* driver = get_driver_instance();
         
         std::cerr << "Connecting..." << std::endl;
         sql::Connection* conn = driver->connect("tcp://127.0.0.1:3306", "sev", "password");
         
         std::cerr << "Setting scheme..." << std::endl;
-        conn->setSchema("SearchEngine");
+        conn->setSchema("Alita");
 
-        std::cerr << "Executing insert statetment..." << std::endl;
-        sql::Statement* statement = conn->createStatement();
-        statement->execute("INSERT INTO Cache VALUES (0, NOW(), NOW(), 'https://github.com', 'Content')");
-        statement->execute("INSERT INTO Cache VALUES (0, NOW(), NOW(), 'https://github.com', 'Content')");
-        delete statement;
+        std::unique_ptr<sql::Statement> stmt;
+        std::unique_ptr<sql::PreparedStatement> pstmt;
+        std::unique_ptr<sql::ResultSet> res;
 
-        std::cerr << "Querying result..." << std::endl;
-        std::cerr << "Preparing the statement..." << std::endl;
-        sql::PreparedStatement* prepared = conn->prepareStatement("SELECT * FROM Cache");
+        stmt.reset(conn->createStatement());
+        pstmt.reset(conn->prepareStatement("CALL usp_AddCache(?, ?, @_linkId)"));
+
+        pstmt->setString(1, std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(L"AAA"));
+        pstmt->setString(2, std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(L"AAA"));
         
-        std::cerr << "Executing query..." << std::endl;
-        sql::ResultSet* set = prepared->executeQuery();
-        sql::ResultSetMetaData* metadata = set->getMetaData();
-
-        std::cerr << "Reading result set..." << std::endl;
-        std::cerr << "Row Count : " << set->rowsCount() << std::endl;
-        std::cerr << "Column Count : " << metadata->getColumnCount() << std::endl;
-        while(set->next()) {
-            for(int i = 1; i <= metadata->getColumnCount(); i++)
-                std::cerr << metadata->getColumnName(i) << " : " << set->getString(i) << std::endl;
-        }
+        pstmt->execute();
+        pstmt->clearParameters();
+        res.reset(pstmt -> getResultSet());
+        while(res->next());
         
-        delete set;
-        delete prepared;
-        delete conn;
+        res.reset(pstmt->executeQuery("SELECT @_linkId AS Id"));
+        while (res->next()) {
+            id = std::stoi(res->getString("Id"));   
+        }    
     }
     catch(const sql::SQLException& e)
     {

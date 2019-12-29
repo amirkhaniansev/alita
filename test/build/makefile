@@ -1,4 +1,4 @@
-all: lqueue_enqueue.test lqueue_dequeue.test https.test threadpool.test parser.test
+all: lqueue_enqueue.test lqueue_dequeue.test https.test threadpool.test parser.test db.test
 
 https.test: ../../include/httpsc.hpp ../https/https_test.cpp
 		g++ ../https/https_test.cpp -o https.test -lhttpsc -lssl -lcrypto
@@ -14,3 +14,6 @@ threadpool.test: ../../include/threadpool.hpp ../threadpool/ttest.cpp
 
 parser.test: ../../include/parser.hpp ../parser/parser_test.cpp
 		g++ ../parser/parser_test.cpp -o parser.test -lparser
+
+db.test: ../../include/db.hpp ../db/db_test.cpp
+		g++ ../db/db_test.cpp -o db.test -lalitadb -lmysqlcppconn
