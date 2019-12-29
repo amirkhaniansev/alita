@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * Test for HTML Parser.
+ * Header file for search library.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -18,29 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#ifndef __SEARCH_HPP__
+#define __SEARCH_HPP__
+
 #include <string>
-#include <iostream>
-#include <fstream>
+#include <vector>
+#include <unordered_map>
 
-#include "../../include/parser.hpp"
+#include "db.hpp"
 
-int main(int argc, char** argv)
-{
-    std::ifstream stream("../parser/content.html");
-    std::string html((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+namespace alita {
+    struct query {
+        std::wstring _query;
+        int _last_id;
+    };
 
-    alita::html_parser parser("spyur.am", html);
-    parser.parse();
+    class search {
+        public:
+            search(const alita::db_connection_info& info);
+            std::unordered_map<std::wstring, alita::search_result> query(const alita::query& query);
+        private:
+            alita::alita_db _db;
+    };
+};
 
-    auto set = parser.get_links();
-    for(auto it = set.begin(); it != set.end(); it++) {
-        std::cout << "LINK : " << *it << std::endl;
-    }
-
-    auto content = parser.get_content();
-    for(auto it = content.begin(); it != content.end(); it++) {
-        std::wcout << it->first << L" | " << it->second << std::endl; 
-    }
-
-    return 0;
-}
+#endif

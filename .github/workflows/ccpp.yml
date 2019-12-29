@@ -11,40 +11,44 @@ jobs:
 
     - uses: actions/checkout@v1
     - name: HTTPS Library Build
-      run: cd ./https/build && sudo make -B && cd ../../
+      run:  cd ./https/build && sudo make -B && cd ../../
     
     - uses: actions/checkout@v1
     - name: Link Queue Library Build
-      run: cd ./lqueue/build && sudo make -B && cd ../../
+      run:  cd ./lqueue/build && sudo make -B && cd ../../
     
     - uses: actions/checkout@v1
     - name: Message Queue Library Build
-      run: cd ./mqueue/build && sudo make -B  && cd ../../ 
+      run:  cd ./mqueue/build && sudo make -B  && cd ../../ 
     
     - uses: actions/checkout@v1
     - name: Parser Library Build
-      run: cd ./parser/build && sudo make -B  && cd ../../ 
+      run:  cd ./parser/build && sudo make -B  && cd ../../ 
     
     - uses: actions/checkout@v1
     - name: Thread Pool Library Build
-      run: cd ./threadpool/build && sudo make -B  && cd ../../    
+      run:  cd ./threadpool/build && sudo make -B  && cd ../../    
          
     - uses: actions/checkout@v1
     - name: DB API Build
-      run: cd ./db/build && sudo make -B  && cd ../../ 
+      run:  cd ./db/build && sudo make -B  && cd ../../ 
       
     - uses: actions/checkout@v1
     - name: Crawler Build
-      run: cd ./crawler/build && sudo make -B  && cd ../../
+      run:  cd ./crawler/build && sudo make -B  && cd ../../
       
     - uses: actions/checkout@v1
     - name: Indexer Build
-      run: cd ./indexer/build && sudo make -B  && cd ../../     
+      run:  cd ./indexer/build && sudo make -B  && cd ../../ 
+      
+    - uses: actions/checkout@v1
+    - name: Search Programmatic API Build
+      run:  cd ./search/build && sudo make -B  && cd ../../     
     
     - uses: actions/checkout@v1
     - name: POCs Build
-      run: cd ./pocs/build && sudo make -B  && cd ../../       
+      run:  cd ./pocs/build && sudo make -B  && cd ../../       
     
     - uses: actions/checkout@v1
     - name: Test Build
-      run: cd ./test/build && sudo make -B  && cd ../../     
+      run:  cd ./test/build && sudo make -B  && cd ../../     

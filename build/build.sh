@@ -6,5 +6,6 @@ cd ./threadpool/build && make -B -j 8 && cd ../../
 cd ./crawler/build && make -B -j 8 && cd ../../
 cd ./db/build && make -B -j 8 && cd ../../
 cd ./indexer/build && make -B -j 8 && cd ../../
+cd ./search/build && make -B -j 8 && cd ../../
 cd ./pocs/build && make -B -j 8 && cd ../../
 cd ./test/build && make -B -j 8 && cd ../../
