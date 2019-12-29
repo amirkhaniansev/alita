@@ -1,8 +1,8 @@
 DELIMITER //
 DROP PROCEDURE IF EXISTS Alita.usp_AddIndex //
 CREATE PROCEDURE Alita.usp_AddIndex (
-    IN _word        VARCHAR(4000) CHARSET utf8,
-    IN _link        VARCHAR(4000) CHARSET utf8,
+    IN _word        VARCHAR(2000) CHARSET utf8,
+    IN _link        VARCHAR(2000) CHARSET utf8,
     IN _frequency   INT
 )
 PROC_START : BEGIN

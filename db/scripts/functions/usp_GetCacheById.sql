@@ -7,3 +7,4 @@ BEGIN
     SELECT * FROM Alita.Cache WHERE Id = cacheId;
 END //
 DELIMITER ;
+SHOW WARNINGS;

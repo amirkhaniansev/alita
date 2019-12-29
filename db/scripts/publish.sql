@@ -7,10 +7,10 @@ CREATE TABLE Alita.Cache (
     Created         DATETIME        NOT NULL,
     Modified        DATETIME        NOT NULL,
     ProcessState    TINYINT         NOT NULL,
-    Link            VARCHAR(4000)   CHARSET utf8,
+    Link            VARCHAR(2000)   CHARSET utf8,
     Content         LONGTEXT        CHARSET utf8,
 
-    CONSTRAINT PK_CACHE_ID    PRIMARY KEY (ID)
+    CONSTRAINT PK_CACHE_ID      PRIMARY KEY (ID)
 );
 SHOW WARNINGS;
 
@@ -18,9 +18,9 @@ SHOW WARNINGS;
 CREATE TABLE Alita.Word (
     ID              INT             NOT NULL AUTO_INCREMENT,
     Created         DATETIME        NOT NULL,
-    Content         VARCHAR(4000)   CHARSET utf8,
+    Content         VARCHAR(2000)   CHARSET utf8,
 
-    CONSTRAINT WORD_ID PRIMARY KEY (ID)    
+    CONSTRAINT PK_WORD_ID      PRIMARY KEY (ID)
 );
 SHOW WARNINGS;
 
@@ -33,9 +33,9 @@ CREATE TABLE Alita.Index (
     Modified        DATETIME        NOT NULL,
     Frequency       INT             NOT NULL,
 
-    CONSTRAINT INDEX_ID         PRIMARY KEY (ID),
-    CONSTRAINT INDEX_WORD_ID    FOREIGN KEY (WordID) REFERENCES Alita.Word(ID),
-    CONSTRAINT INDEX_LINK_ID    FOREIGN KEY (LinkID) REFERENCES Alita.Cache(ID) 
+    CONSTRAINT PK_INDEX_ID         PRIMARY KEY (ID),
+    CONSTRAINT FK_INDEX_WORD_ID    FOREIGN KEY (WordID) REFERENCES Alita.Word(ID),
+    CONSTRAINT FK_INDEX_LINK_ID    FOREIGN KEY (LinkID) REFERENCES Alita.Cache(ID)
 );
 SHOW WARNINGS;
 
@@ -43,7 +43,7 @@ SHOW WARNINGS;
 DELIMITER //
 DROP PROCEDURE IF EXISTS Alita.usp_AddCache //
 CREATE PROCEDURE Alita.usp_AddCache (
-    IN  _link    VARCHAR(4000)  CHARSET utf8,
+    IN  _link    VARCHAR(2000)  CHARSET utf8,
     IN  _content LONGTEXT       CHARSET utf8,
     OUT _linkId  INT
 )
@@ -72,8 +72,8 @@ SHOW WARNINGS;
 DELIMITER //
 DROP PROCEDURE IF EXISTS Alita.usp_AddIndex //
 CREATE PROCEDURE Alita.usp_AddIndex (
-    IN _word        VARCHAR(4000) CHARSET utf8,
-    IN _link        VARCHAR(4000) CHARSET utf8,
+    IN _word        VARCHAR(2000) CHARSET utf8,
+    IN _link        VARCHAR(2000) CHARSET utf8,
     IN _frequency   INT
 )
 PROC_START : BEGIN
@@ -115,12 +115,13 @@ BEGIN
     SELECT * FROM Alita.Cache WHERE Id = cacheId;
 END //
 DELIMITER ;
+SHOW WARNINGS;
 
 -- create procedure usp_Search
 DELIMITER //
 DROP PROCEDURE IF EXISTS Alita.usp_Search //
 CREATE PROCEDURE Alita.usp_Search (
-    IN _word    VARCHAR(4000) CHARSET utf8,
+    IN _word    VARCHAR(2000) CHARSET utf8,
     IN _lastId  INT
 )
 BEGIN
@@ -132,8 +133,7 @@ BEGIN
         FROM Alita.Word w
         INNER JOIN Alita.Index i ON w.Id = i.WordId 
         INNER JOIN Alita.Cache c ON i.LinkId = c.Id
-        WHERE w.Content = _word  AND
-              c.ProcessState = 2 AND
+        WHERE INSTR(w.Content, _word) != 0  AND
               i.Id > _lastId 
         ORDER BY i.Frequency DESC, 
                  i.Modified  DESC,
@@ -141,6 +141,7 @@ BEGIN
         LIMIT 0, 10;
 END //
 DELIMITER ;
+SHOW WARNINGS;
 
 -- create procedure usp_SetCacheState
 DELIMITER //
@@ -150,7 +151,7 @@ CREATE PROCEDURE Alita.usp_SetCacheState (
     IN _state   TINYINT
 )
 BEGIN
-    UPDATE Alita.Cache SET ProcessState = _state WHERE Id = _linkId;
+    UPDATE Alita.Cache SET ProcessState = _state WHERE Id = _linkId AND ProcessState != _state;
 END //
 DELIMITER ;
 SHOW WARNINGS;

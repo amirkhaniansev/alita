@@ -257,6 +257,8 @@ std::vector<alita::search_result> alita::alita_db::search(std::wstring word, int
 
 void alita::alita_db::set_cache_state(int link_id, short state)
 {
+    std::cerr << "Setting cache state" << std::endl;
+
     if(link_id <= 0)
         throw std::invalid_argument("Invalid link id");
 
@@ -287,6 +289,8 @@ void alita::alita_db::set_cache_state(int link_id, short state)
     {
         std::cerr << e.what() << std::endl;
     }
+
+    std::cerr << "Set cache state" << std::endl;
 }
 
 void alita::alita_db::log(std::string message)

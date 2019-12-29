@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * Header file for parser.
+ * Header file for indexer.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -18,29 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef __HTML_PARSER_HPP__
-#define __HTML_PARSER_HPP__
+#ifndef __INDEXER_HPP__
+#define __INDEXER_HPP__
 
 #include <string>
-#include <unordered_set>
-#include <unordered_map>
 
-#include <myhtml/api.h>
+#include "db.hpp"
+#include "subscriber.hpp"
 
 namespace alita {
-    class html_parser {
+    class indexer {
         public:
-            html_parser(std::string base_url, std::string content);
-            void parse();
-            std::unordered_map<std::wstring, int> get_content();
-            std::unordered_set<std::string> get_links();
-            ~html_parser();
+            indexer(std::string subscribe_url, alita::db_connection_info info);
+            void start();
         private:
-            std::string base_url;
-            std::string content;
-            myhtml* html;
-            myhtml_tree* tree;
-            void add(std::unordered_map<std::wstring, int>* words, std::wstring& text);
+            alita::csub _subscriber;
+            alita::alita_db _db;
+            void index(std::wstring& link, std::wstring& content);
     };
 };
 

@@ -5,7 +5,7 @@ CREATE PROCEDURE Alita.usp_SetCacheState (
     IN _state   TINYINT
 )
 BEGIN
-    UPDATE Alita.Cache SET ProcessState = _state WHERE Id = _linkId;
+    UPDATE Alita.Cache SET ProcessState = _state WHERE Id = _linkId AND ProcessState != _state;
 END //
 DELIMITER ;
 SHOW WARNINGS;

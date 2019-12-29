@@ -19,18 +19,22 @@
 **/
 
 #include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
 
 #include "../include/crawler.hpp"
 #include "../include/threadpool.hpp"
 #include "../include/lqueue.hpp"
 #include "../include/httpsc.hpp"
 #include "../include/parser.hpp"
+#include "../include/db.hpp"
 
 alita::crawler::crawler(std::string publish_url) : _publisher(publish_url)
 {
     this->_url = publish_url;
     this->_concurrency_level = 1;
-    this->_publisher.declare("Link Content");
+    this->_publisher.declare("Link ID");
 
     alita::lqueue::set_size(1000000000);
 }
@@ -72,6 +76,15 @@ void alita::crawler::set_log_flag(const bool& flag)
 
 void alita::crawler::start()
 {
+    alita::db_connection_info info;
+    info._host = "tcp://localhost:3306";
+    info._scheme = "Alita";
+    info._username = "sev";
+    info._password = "password";
+    info._log = true;
+
+    alita::alita_db db(info);
+
     while (true)
     {
         try
@@ -88,12 +101,16 @@ void alita::crawler::start()
             this->log("Host", host);
 
             std::string content = alita::httpsc::get(url);
-        
-            std::string message = "{\"Link\":\"" + url + "\",\"Content\":" + content + "\"}";
-            this->_publisher.publish("Link Content", message);
-
             if(content.empty())
                 continue;
+     
+            int id = db.add_cache(
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(url),
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(content));
+            if(id == 0)
+                continue;
+
+            this->_publisher.publish("Link ID", std::to_string(id));
 
             alita::html_parser parser(host, content);
             parser.parse();

@@ -17,5 +17,10 @@ int main(int argc, char** argv)
         std::cout << "LINK : " << *it << std::endl;
     }
 
+    auto content = parser.get_content();
+    for(auto it = content.begin(); it != content.end(); it++) {
+        std::wcout << it->first << L" | " << it->second << std::endl; 
+    }
+
     return 0;
 }
