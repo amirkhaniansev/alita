@@ -1,5 +1,4 @@
 # ALITA
-![alt Alita is a hero in an American sci-fi movie.](https://repository-images.githubusercontent.com/225002165/4fae2100-1fa8-11ea-97ac-fe4735d0e4ae)
 * Simple search engine with basic functionality. 
 * NOTE that this project is done for educational and scientific purposes, thus it may not meet industrial and production standards.
 
@@ -62,9 +61,3 @@ The ecosystem of this seach engine consists of a few components:
   *  [HTTP(S) C++ Client](https://github.com/yhirose/cpp-httplib)
   *  [HTML Parser](https://github.com/lexborisov/myhtml)
   *  [CURL](https://curl.haxx.se/libcurl/)
-  
-#### TODOs
-  * Aggressive Optimizations
-  * Desktop / Web UI
-  * Monitoring System
-  * Discovery Service
