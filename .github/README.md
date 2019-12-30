@@ -3,6 +3,9 @@
 * Simple search engine with basic functionality. 
 * NOTE that this project is done for educational and scientific purposes, thus it may not meet industrial and production standards.
 
+## Screenshot From RESTLike API Query
+![alt Screenshot](https://github.com/amirkhaniansev/alita/blob/master/docs/pics/Screenshot%20from%202019-12-30%2018-21-21.png)
+
 The problem is offered and described by [Vahram Martirosyan, Ph.D](https://github.com/vmartirosyan).
 
 The ecosystem of this seach engine consists of a few components:
