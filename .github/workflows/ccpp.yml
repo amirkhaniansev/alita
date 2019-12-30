@@ -43,7 +43,11 @@ jobs:
       
     - uses: actions/checkout@v1
     - name: Search Programmatic API Build
-      run:  cd ./search/build && sudo make -B  && cd ../../     
+      run:  cd ./search/build && sudo make -B  && cd ../../
+      
+    - uses: actions/checkout@v1
+    - name: Search RESTLike API Build
+      run:  cd ./server/build && sudo make -B  && cd ../../      
     
     - uses: actions/checkout@v1
     - name: POCs Build

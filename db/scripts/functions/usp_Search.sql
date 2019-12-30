@@ -13,7 +13,7 @@ BEGIN
         FROM Alita.Word w
         INNER JOIN Alita.Index i ON w.Id = i.WordId 
         INNER JOIN Alita.Cache c ON i.LinkId = c.Id
-        WHERE INSTR(w.Content, _word) != 0  AND
+        WHERE (w.Content = _word OR LOCATE(_word, w.Content) != 0) AND
               i.Id > _lastId 
         ORDER BY i.Frequency DESC, 
                  i.Modified  DESC,

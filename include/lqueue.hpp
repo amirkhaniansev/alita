@@ -29,7 +29,7 @@
 
 namespace alita {
     struct link {
-        char _link[2000];
+        char _link[4000];
     };
 
     struct queue_item {

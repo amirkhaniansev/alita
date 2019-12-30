@@ -1,6 +1,6 @@
 /**
  * GNU General Public License Version 3.0, 29 June 2007
- * Source file for crawler.
+ * Header file for search REST API.
  * Copyright (C) <2019>
  *      Authors: <amirkhaniansev>  <amirkhanyan.sevak@gmail.com>
  *
@@ -18,28 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "../include/crawler.hpp"
+#ifndef __SERVER_HPP__
+#define __SERVER_HPP__
 
-int main(int argc, char** argv)
-{
-    std::string url = "";
-    std::vector<std::string> links = {
-        "https://www.google.am",
-        "https://www.list.am",
-        "https://www.eli.am",
-        "https://www.news.am",
-        "https://www.ysu.am",
-        "https://www.blognews.am",
-        "https://hy.wikipedia.org"
+#include "httplib.hpp"
+
+#include <iostream>
+#include <string>
+
+namespace alita {
+    class server {
+        public:
+            server(std::string host, int port);
+            void start();
+            void stop();
+        private:
+            std::string _host;
+            int _port;
+            bool _started;
+            httplib::Server _srv;
     };
+};
 
-    alita::crawler crawler(url);
-    
-    crawler.set_concurreny_level(4);
-    crawler.set_cache_size(1000000);
-    crawler.set_initial_list(links);
-    crawler.set_log_flag(false);
-    crawler.start();
-
-    return 0;
-}
+#endif
