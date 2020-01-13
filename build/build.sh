@@ -3,8 +3,8 @@ cd ./lqueue/build && make -B -j 8 && cd ../../
 cd ./mqueue/build && make -B -j 8 && cd ../../
 cd ./parser/build && make -B -j 8 && cd ../../
 cd ./threadpool/build && make -B -j 8 && cd ../../
-cd ./crawler/build && make -B -j 8 && cd ../../
 cd ./db/build && make -B -j 8 && cd ../../
+cd ./crawler/build && make -B -j 8 && cd ../../
 cd ./indexer/build && make -B -j 8 && cd ../../
 cd ./search/build && make -B -j 8 && cd ../../
 cd ./server/build && make -B -j 8 && cd ../../
